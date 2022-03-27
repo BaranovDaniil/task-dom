@@ -5,6 +5,12 @@
   Считаем, что всегда передается тег, допускающий вставку текста в качестве своего содержимого (P, DIV, I и пр.).
 */
 export function appendToBody(tag, content, count) {
+    const body = document.body;
+
+    while (count) {
+        body.insertAdjacentHTML('beforeend', `<${tag}>${content}</${tag}>`);
+        count--;
+    }
 }
 
 /*
@@ -15,6 +21,38 @@ export function appendToBody(tag, content, count) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function generateTree(childrenCount, level) {
+    const classPrefix = 'item_';
+    let currentLevel = 1;
+    let rootDiv = document.createElement('div');
+    rootDiv.className = classPrefix + currentLevel;
+
+    while (currentLevel !== level) {
+        currentLevel++;
+
+        if (currentLevel === 2) {
+            for (let j = 0; j < childrenCount; j++) {
+                rootDiv.insertAdjacentHTML(
+                    'beforeend',
+                    `<div class="${classPrefix}${currentLevel}"></div>`,
+                );
+            }
+        } else {
+            let divs = rootDiv.getElementsByClassName(
+                `${classPrefix}${currentLevel - 1}`,
+            );
+
+            for (let i = 0; i < divs.length; i++) {
+                for (let j = 0; j < childrenCount; j++) {
+                    divs[i].insertAdjacentHTML(
+                        'beforeend',
+                        `<div class="${classPrefix}${currentLevel}"></div>`,
+                    );
+                }
+            }
+        }
+    }
+
+    return rootDiv;
 }
 
 /*
@@ -26,4 +64,17 @@ export function generateTree(childrenCount, level) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function replaceNodes() {
+    let rootDiv = generateTree(2, 3);
+    const classLevel2 = 'item_2';
+
+    let divs = rootDiv.getElementsByClassName(classLevel2);
+    for (let i = 0; i < 2; i++) {
+        let section = document.createElement('section');
+        section.className = classLevel2;
+        section.innerHTML = divs[i].innerHTML;
+        divs[i].after(section);
+        divs[i].remove();
+    }
+
+    return rootDiv;
 }
